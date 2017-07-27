@@ -1,11 +1,10 @@
 package com.zenvia.sms.sdk.exceptions;
 
-import com.google.gson.JsonObject;
 import org.apache.commons.httpclient.HttpStatus;
 
 public class ZenviaHTTPExceptionFactory {
 
-    private static JsonObject responseBody;
+    private static String responseBody;
 
     /**
      *
@@ -13,7 +12,7 @@ public class ZenviaHTTPExceptionFactory {
      * @param responseBody the response body.
      * @return an exception corresponding to the HTTP status code.
      */
-    public static ZenviaHTTPSmsException buildException(int statusCode, JsonObject responseBody) {
+    public static ZenviaHTTPSmsException buildException(int statusCode, String responseBody) {
         ZenviaHTTPExceptionFactory.responseBody = responseBody;
         switch(statusCode) {
             case HttpStatus.SC_BAD_REQUEST:
