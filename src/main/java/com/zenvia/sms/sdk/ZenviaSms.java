@@ -2,7 +2,7 @@ package com.zenvia.sms.sdk;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.zenvia.sms.sdk.exceptions.ZenviaHTTPException;
+import com.zenvia.sms.sdk.exceptions.ZenviaHTTPSmsException;
 import com.zenvia.sms.sdk.exceptions.ZenviaHTTPExceptionFactory;
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.HttpClient;
@@ -10,7 +10,6 @@ import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 
 import java.io.FileNotFoundException;
@@ -33,10 +32,10 @@ public final class ZenviaSms {
                 PROPERTIES.load(propertiesFile);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
-                throw new RuntimeException("File konduto.properties file does not exist.");
+                throw new RuntimeException("File zenvia.properties file does not exist.");
             } catch (IOException e) {
                 e.printStackTrace();
-                throw new RuntimeException("Could not read properties from konduto.properties file.");
+                throw new RuntimeException("Could not read properties from zenvia.properties file.");
             }
         }
 
@@ -89,7 +88,7 @@ public final class ZenviaSms {
          *     zenviaSms.setProxyHost(proxyHostname, proxyPort);
          *     zenviaSms.setProxyCredentials(new UsernamePasswordCredentials("username", "password"));
          *
-         *     * use konduto API as usual *
+         *     * use zenviaSms API as usual *
          *     zenviaSms.sendSms(SMS_ID);
          *
          * </code>
@@ -214,9 +213,9 @@ public final class ZenviaSms {
          * @param method the HTTP method
          * @param requestBody the HTTP request body
          * @return the response coming from ZenviaSms's API
-         * @throws ZenviaHTTPException when something goes wrong, i.e a non-200 OK response is answered
+         * @throws ZenviaHTTPSmsException when something goes wrong, i.e a non-200 OK response is answered
          */
-        private JsonObject sendRequest(HttpMethod method, JsonObject requestBody) throws ZenviaHTTPException {
+        private JsonObject sendRequest(HttpMethod method, JsonObject requestBody) throws ZenviaHTTPSmsException {
 
             if(this.base64AuthorizationKey == null) { throw new NullPointerException("Authorization key cannot be null"); }
 
@@ -252,4 +251,6 @@ public final class ZenviaSms {
 
             return null;
         }
+
+        //TODO: Add the methods to send sms and get status and sms
 }

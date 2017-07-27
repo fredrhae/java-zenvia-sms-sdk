@@ -8,7 +8,7 @@ package com.zenvia.sms.sdk.exceptions;
  * (e.g saving an order, reporting to our support team automatically, etc.)
  *
  */
-public abstract class ZenviaException extends Exception {
+public abstract class ZenviaSmsException extends Exception {
 
     private static final long serialVersionUID = 7652761688561093159L;
 
