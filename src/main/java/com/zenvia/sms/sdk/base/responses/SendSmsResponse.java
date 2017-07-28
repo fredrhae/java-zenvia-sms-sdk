@@ -1,6 +1,7 @@
 package com.zenvia.sms.sdk.base.responses;
 
 import com.zenvia.sms.sdk.base.rest.ZenviaSmsModel;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,6 +9,7 @@ import lombok.experimental.Accessors;
 
 @Getter
 @Setter
+@Builder
 @EqualsAndHashCode(callSuper = true)
 @Accessors(chain = true)
 public class SendSmsResponse extends ZenviaSmsModel{

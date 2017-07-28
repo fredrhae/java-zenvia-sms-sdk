@@ -1,5 +1,7 @@
 package com.zenvia.sms.sdk.exceptions;
 
+import com.google.gson.JsonObject;
+
 public class ZenviaHTTPSmsException extends ZenviaSmsException {
 
     private static final long serialVersionUID = 6043245262354589627L;
@@ -10,7 +12,7 @@ public class ZenviaHTTPSmsException extends ZenviaSmsException {
      * @param message instance's message
      * @param responseBody Zenvia's API response
      */
-    protected ZenviaHTTPSmsException(String message, String responseBody){
+    protected ZenviaHTTPSmsException(String message, JsonObject responseBody){
         this.message = String.format("%s Response body: %s", message, responseBody);
     }
 
