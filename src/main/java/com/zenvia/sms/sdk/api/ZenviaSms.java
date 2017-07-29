@@ -13,6 +13,7 @@ import com.zenvia.sms.sdk.exceptions.ZenviaSmsUnexpectedAPIResponseException;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -134,7 +135,7 @@ public final class ZenviaSms {
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
             StringBuilder stringBuilder = new StringBuilder();
 
-            String line = null;
+            String line;
             try {
                 while ((line = reader.readLine()) != null) {
                     stringBuilder.append(line + "\n");
@@ -181,7 +182,7 @@ public final class ZenviaSms {
 
                 this.requestBody = requestBody; // set Zenvia's request body for debugging purposes
 
-                StringEntity requestEntity = new StringEntity(requestBody.toString());
+                StringEntity requestEntity = new StringEntity(requestBody.toString(), ContentType.APPLICATION_JSON);
 
                 postRequest.setEntity(requestEntity);
 

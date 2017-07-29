@@ -1,10 +1,8 @@
 package com.zenvia.sms.sdk.base.responses;
 
+import com.zenvia.sms.sdk.base.models.SmsStatusCode;
 import com.zenvia.sms.sdk.base.rest.ZenviaSmsModel;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.Accessors;
 
 @Getter
@@ -17,7 +15,7 @@ public class SendSmsResponse extends ZenviaSmsModel{
     /**
      *
      */
-    private Integer statusCode;
+    private SmsStatusCode statusCode;
 
     /**
      *

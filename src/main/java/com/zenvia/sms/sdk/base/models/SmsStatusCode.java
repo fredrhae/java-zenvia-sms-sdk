@@ -19,4 +19,15 @@ public enum SmsStatusCode {
     public int toValue() {
         return ordinal();
     }
+
+    public static SmsStatusCode fromValue(Integer value) {
+        SmsStatusCode[] values = SmsStatusCode.values();
+        for(SmsStatusCode currentStatus : values){
+            if(currentStatus.toValue() == value){
+                return currentStatus;
+            }
+        }
+
+        return null;
+    }
 }

@@ -4,7 +4,6 @@ import com.zenvia.sms.sdk.base.CallbackOption;
 import com.zenvia.sms.sdk.base.models.SmsStatusCode;
 import com.zenvia.sms.sdk.base.requests.SendSmsRequest;
 import com.zenvia.sms.sdk.base.responses.SendSmsResponse;
-import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -16,8 +15,8 @@ import static org.junit.Assert.assertEquals;
  *
  */
 public class ZenviaSmsTest {
-    private final String AUTH_KEY = "authkey";
-    private final String PHONE_NUMBER = "5599999999";
+    private final String AUTH_KEY = "base64encodingkey";
+    private final String PHONE_NUMBER = "555199999999";
 
     private ZenviaSms zenviaSms;
     @Before
@@ -60,12 +59,11 @@ public class ZenviaSmsTest {
     @Test
     public void sendSingleSms() throws Exception {
         SendSmsRequest smsRequest = SendSmsRequest.builder()
-                                        .from("Frederico Leal")
+                                        .from("Sdk test")
                                         .to(PHONE_NUMBER)
-                                        .msg("Test SDK")
+                                        .msg("Teste de envio!")
                                         .id("test-" + new Random().nextInt(100))
                                         .callbackOption(CallbackOption.NONE)
-                                        .schedule(DateTime.now().toString())
                                         .build();
 
         SendSmsResponse response = zenviaSms.sendSingleSms(smsRequest);

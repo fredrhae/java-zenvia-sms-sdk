@@ -1,6 +1,7 @@
 package com.zenvia.sms.sdk.base.rest;
 
 import com.google.gson.*;
+import com.zenvia.sms.sdk.base.responses.SendSmsResponse;
 import com.zenvia.sms.sdk.exceptions.ZenviaSmsInvalidEntityException;
 import lombok.EqualsAndHashCode;
 import org.joda.time.DateTime;
@@ -21,6 +22,7 @@ public class ZenviaSmsModel {
                     return new JsonPrimitive(ISODateTimeFormat.dateTime().print(json));
                 }
             })
+            .registerTypeAdapter(SendSmsResponse.class, new SmsResponseDeserializer())
             .create();
 
     protected transient List<String> errors = new ArrayList<String>();
