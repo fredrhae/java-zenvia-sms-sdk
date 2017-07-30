@@ -1,13 +1,20 @@
 package com.zenvia.sms.sdk.api;
 
-import com.zenvia.sms.sdk.base.CallbackOption;
+import com.zenvia.sms.sdk.base.models.CallbackOption;
 import com.zenvia.sms.sdk.base.models.SmsStatusCode;
+import com.zenvia.sms.sdk.base.requests.SendSmsMultiRequest;
 import com.zenvia.sms.sdk.base.requests.SendSmsRequest;
+import com.zenvia.sms.sdk.base.requests.SendSmsRequestList;
+import com.zenvia.sms.sdk.base.responses.GetSmsStatusResponse;
 import com.zenvia.sms.sdk.base.responses.SendSmsResponse;
+import com.zenvia.sms.sdk.base.responses.SendSmsResponseList;
+import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import static org.junit.Assert.assertEquals;
@@ -17,7 +24,10 @@ import static org.junit.Assert.assertEquals;
  */
 public class ZenviaSmsTest {
     private final String AUTH_KEY = "authkey";
-    private final String PHONE_NUMBER = "55519999999";
+    private final String PHONE_NUMBER = "55519999999999";
+    private final String PHONE_NUMBER_2 = "55519999999999";
+    private final String PHONE_NUMBER_3 = "55519999999999";
+    private final String[] PHONE_NUMBERS = new String[]{PHONE_NUMBER, PHONE_NUMBER_2, PHONE_NUMBER_3};
     private final String ENDPOINT = "https://api-rest.zenvia360.com.br/services";
 
     private ZenviaSms zenviaSms;
@@ -76,7 +86,7 @@ public class ZenviaSmsTest {
     }
 
     @Test
-    public void sendSingleSms() throws Exception {
+    public void sendSingleSmsTest() throws Exception {
         SendSmsRequest smsRequest = SendSmsRequest.builder()
                                         .from("Frederico Leal")
                                         .to(PHONE_NUMBER)
@@ -87,6 +97,72 @@ public class ZenviaSmsTest {
 
         SendSmsResponse response = zenviaSms.sendSingleSms(smsRequest);
         assertEquals(SmsStatusCode.OK, response.getStatusCode());
+    }
+
+    @Test
+    public void sendSingleSmsTestScheduled() throws Exception {
+        DateTime currentDate = DateTime.now();
+        currentDate.plusSeconds(10);
+
+        SendSmsRequest smsRequest = SendSmsRequest.builder()
+                .from("Frederico Leal")
+                .to(PHONE_NUMBER)
+                .msg("Teste de envio de único sms!")
+                .id("test-" + new Random().nextInt(100))
+                .schedule(currentDate)
+                .callbackOption(CallbackOption.NONE)
+                .build();
+
+        SendSmsResponse response = zenviaSms.sendSingleSms(smsRequest);
+        assertEquals(SmsStatusCode.OK, response.getStatusCode());
+    }
+
+    @Test
+    public void sendMultipleSmsTest() throws Exception {
+        List<SendSmsRequestList> multipleSms = new ArrayList<>();
+
+        for(int i = 0; i < 3; i ++){
+            SendSmsRequestList currentSmsRequestList = SendSmsRequestList.builder()
+                                                        .from("Frederico Leal")
+                                                        .to(PHONE_NUMBERS[i])
+                                                        .msg("Teste de envios múltiplos!")
+                                                        .id("test-" + new Random().nextInt(100))
+                                                        .build();
+
+            multipleSms.add(currentSmsRequestList);
+        }
+
+        SendSmsMultiRequest multipleSmsRequest = SendSmsMultiRequest.builder()
+                                                    .sendSmsRequestList(multipleSms)
+                                                    .build();
+
+        SendSmsResponseList responseList = zenviaSms.sendMultipleSms(multipleSmsRequest);
+
+        for(SendSmsResponse currentSmsResponse : responseList.getSendSmsResponseList()) {
+            assertEquals(SmsStatusCode.OK, currentSmsResponse.getStatusCode());
+        }
+    }
+
+    @Test
+    public void getStatusFromSmsTest() throws Exception {
+        String smsId = "test-" + new Random().nextInt(100);
+        SendSmsRequest smsRequest = SendSmsRequest.builder()
+                .from("Frederico Leal")
+                .to(PHONE_NUMBER)
+                .msg("Teste de get status!")
+                .id(smsId)
+                .callbackOption(CallbackOption.NONE)
+                .build();
+
+        SendSmsResponse responseFromSend = zenviaSms.sendSingleSms(smsRequest);
+        assertEquals(SmsStatusCode.OK, responseFromSend.getStatusCode());
+
+        GetSmsStatusResponse response = zenviaSms.getStatusFromSms(smsId);
+        assertEquals(SmsStatusCode.DELIVERED, response.getStatusCode());
+        assertEquals(smsId, response.getId());
+        assertEquals("Sent", response.getStatusDescription());
+        assertEquals((Integer)110, response.getDetailCode());
+        assertEquals("tim", response.getMobileOperatorName());
     }
 
 }

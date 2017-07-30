@@ -1,6 +1,6 @@
 package com.zenvia.sms.sdk.exceptions;
 
-import com.zenvia.sms.sdk.base.rest.ZenviaSmsModel;
+import com.zenvia.sms.sdk.base.models.ZenviaSmsModel;
 
 public class ZenviaSmsInvalidEntityException extends ZenviaSmsException {
 

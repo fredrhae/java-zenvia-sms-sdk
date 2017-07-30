@@ -1,4 +1,4 @@
-package com.zenvia.sms.sdk.base.requests;
+package com.zenvia.sms.sdk.base.responses;
 
 import com.zenvia.sms.sdk.base.models.ZenviaSmsModel;
 import lombok.Builder;
@@ -9,19 +9,16 @@ import lombok.experimental.Accessors;
 
 import java.util.List;
 
+
 @Getter
 @Setter
 @Builder
 @EqualsAndHashCode(callSuper = true)
 @Accessors(chain = true)
-public class SendSmsMultiRequest extends ZenviaSmsModel{
-    /**
-     *
-     */
-    private Integer aggregateId;
+public class SendSmsResponseList extends ZenviaSmsModel{
 
     /**
      *
      */
-    private List<SendSmsRequestList> sendSmsRequestList;
+    List<SendSmsResponse> sendSmsResponseList;
 }

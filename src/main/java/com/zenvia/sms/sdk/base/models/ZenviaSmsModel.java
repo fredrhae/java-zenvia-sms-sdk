@@ -1,13 +1,15 @@
-package com.zenvia.sms.sdk.base.rest;
+package com.zenvia.sms.sdk.base.models;
 
 import com.google.gson.*;
+import com.zenvia.sms.sdk.base.responses.GetSmsStatusResponse;
 import com.zenvia.sms.sdk.base.responses.SendSmsResponse;
+import com.zenvia.sms.sdk.base.rest.GetStatusResponseDeserializer;
+import com.zenvia.sms.sdk.base.rest.SmsResponseDeserializer;
 import com.zenvia.sms.sdk.exceptions.ZenviaSmsInvalidEntityException;
 import lombok.EqualsAndHashCode;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,15 +19,14 @@ public class ZenviaSmsModel {
     protected static Gson gson = new GsonBuilder()
             .setFieldNamingPolicy(FieldNamingPolicy.IDENTITY)
             .setPrettyPrinting()
-            .registerTypeAdapter(DateTime.class, new JsonSerializer<DateTime>(){
-                public JsonElement serialize(DateTime json, Type typeOfSrc, JsonSerializationContext context) {
-                    return new JsonPrimitive(ISODateTimeFormat.dateTime().print(json));
-                }
-            })
+            .registerTypeAdapter(DateTime.class, (JsonSerializer<DateTime>)
+                                    (json, typeOfSrc, context) -> new JsonPrimitive(ISODateTimeFormat.dateTime().print(json))
+                                )
             .registerTypeAdapter(SendSmsResponse.class, new SmsResponseDeserializer())
+            .registerTypeAdapter(GetSmsStatusResponse.class, new GetStatusResponseDeserializer())
             .create();
 
-    protected transient List<String> errors = new ArrayList<String>();
+    protected transient List<String> errors = new ArrayList<>();
 
     /* Serialization methods */
 

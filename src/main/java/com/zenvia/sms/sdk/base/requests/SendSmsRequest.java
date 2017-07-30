@@ -1,12 +1,13 @@
 package com.zenvia.sms.sdk.base.requests;
 
-import com.zenvia.sms.sdk.base.CallbackOption;
-import com.zenvia.sms.sdk.base.rest.ZenviaSmsModel;
+import com.zenvia.sms.sdk.base.models.CallbackOption;
+import com.zenvia.sms.sdk.base.models.ZenviaSmsModel;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import org.joda.time.DateTime;
 
 @Getter
 @Setter
@@ -27,7 +28,7 @@ public class SendSmsRequest extends ZenviaSmsModel{
     /**
      *
      */
-    private String schedule;
+    private DateTime schedule;
 
     /**
      *
