@@ -1,4 +1,4 @@
-package com.zenvia.sms.sdk.base.responses;
+package com.zenvia.sms.sdk.base.rest.responses;
 
 import com.zenvia.sms.sdk.base.models.SmsStatusCode;
 import com.zenvia.sms.sdk.base.models.ZenviaSmsModel;
@@ -10,7 +10,7 @@ import lombok.experimental.Accessors;
 @Builder
 @EqualsAndHashCode(callSuper = true)
 @Accessors(chain = true)
-public class SendSmsResponse extends ZenviaSmsModel{
+public class SmsResponse extends ZenviaSmsModel{
 
     /**
      *

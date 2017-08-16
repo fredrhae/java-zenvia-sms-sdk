@@ -1,4 +1,4 @@
-package com.zenvia.sms.sdk.base.requests;
+package com.zenvia.sms.sdk.base.rest.requests;
 
 import com.zenvia.sms.sdk.base.models.CallbackOption;
 import com.zenvia.sms.sdk.base.models.ZenviaSmsModel;

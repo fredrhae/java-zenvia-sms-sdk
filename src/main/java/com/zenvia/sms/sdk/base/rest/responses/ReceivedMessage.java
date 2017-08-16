@@ -1,6 +1,5 @@
-package com.zenvia.sms.sdk.base.requests;
+package com.zenvia.sms.sdk.base.rest.responses;
 
-import com.zenvia.sms.sdk.base.models.CallbackOption;
 import com.zenvia.sms.sdk.base.models.ZenviaSmsModel;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -14,39 +13,39 @@ import org.joda.time.DateTime;
 @Builder
 @EqualsAndHashCode(callSuper = true)
 @Accessors(chain = true)
-public class SendSmsRequest extends ZenviaSmsModel{
+public class ReceivedMessage extends ZenviaSmsModel{
     /**
      *
      */
-    private String from;
+    private Long id;
 
     /**
      *
      */
-    private String to;
+    private DateTime dateReceived;
 
     /**
      *
      */
-    private DateTime schedule;
+    private String mobile;
 
     /**
      *
      */
-    private String msg;
+    private String body;
 
     /**
      *
      */
-    private CallbackOption callbackOption;
+    private String  shortcode;
 
     /**
      *
      */
-    private String id;
+    private String mobileOperatorName;
 
     /**
      *
      */
-    private Integer aggregateId;
+    private String mtId;
 }

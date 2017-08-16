@@ -1,6 +1,6 @@
-package com.zenvia.sms.sdk.base.responses;
+package com.zenvia.sms.sdk.base.rest.requests;
 
-import com.zenvia.sms.sdk.base.models.SmsStatusCode;
+import com.zenvia.sms.sdk.base.models.CallbackOption;
 import com.zenvia.sms.sdk.base.models.ZenviaSmsModel;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -14,7 +14,32 @@ import org.joda.time.DateTime;
 @Builder
 @EqualsAndHashCode(callSuper = true)
 @Accessors(chain = true)
-public class GetSmsStatusResponse extends ZenviaSmsModel{
+public class SendSmsRequest extends ZenviaSmsModel{
+    /**
+     *
+     */
+    private String from;
+
+    /**
+     *
+     */
+    private String to;
+
+    /**
+     *
+     */
+    private DateTime schedule;
+
+    /**
+     *
+     */
+    private String msg;
+
+    /**
+     *
+     */
+    private CallbackOption callbackOption;
+
     /**
      *
      */
@@ -23,36 +48,5 @@ public class GetSmsStatusResponse extends ZenviaSmsModel{
     /**
      *
      */
-    private DateTime received;
-
-    /**
-     *
-     */
-    private String shortcode;
-
-    /**
-     *
-     */
-    private String mobileOperatorName;
-
-
-    /**
-     *
-     */
-    private SmsStatusCode statusCode;
-
-    /**
-     *
-     */
-    private String statusDescription;
-
-    /**
-     *
-     */
-    private Integer detailCode;
-
-    /**
-     *
-     */
-    private String detailDescription;
+    private Integer aggregateId;
 }

@@ -1,10 +1,12 @@
 package com.zenvia.sms.sdk.base.models;
 
 import com.google.gson.*;
-import com.zenvia.sms.sdk.base.responses.GetSmsStatusResponse;
-import com.zenvia.sms.sdk.base.responses.SendSmsResponse;
-import com.zenvia.sms.sdk.base.rest.GetStatusResponseDeserializer;
-import com.zenvia.sms.sdk.base.rest.SmsResponseDeserializer;
+import com.zenvia.sms.sdk.base.rest.deserializers.GetStatusResponseDeserializer;
+import com.zenvia.sms.sdk.base.rest.deserializers.ReceivedMessagesResponseDeserializer;
+import com.zenvia.sms.sdk.base.rest.deserializers.SmsResponseDeserializer;
+import com.zenvia.sms.sdk.base.rest.responses.GetSmsStatusResponse;
+import com.zenvia.sms.sdk.base.rest.responses.ReceivedMessagesListResponse;
+import com.zenvia.sms.sdk.base.rest.responses.SmsResponse;
 import com.zenvia.sms.sdk.exceptions.ZenviaSmsInvalidEntityException;
 import lombok.EqualsAndHashCode;
 import org.joda.time.DateTime;
@@ -22,8 +24,9 @@ public class ZenviaSmsModel {
             .registerTypeAdapter(DateTime.class, (JsonSerializer<DateTime>)
                                     (json, typeOfSrc, context) -> new JsonPrimitive(ISODateTimeFormat.dateTime().print(json))
                                 )
-            .registerTypeAdapter(SendSmsResponse.class, new SmsResponseDeserializer())
+            .registerTypeAdapter(SmsResponse.class, new SmsResponseDeserializer())
             .registerTypeAdapter(GetSmsStatusResponse.class, new GetStatusResponseDeserializer())
+            .registerTypeAdapter(ReceivedMessagesListResponse.class, new ReceivedMessagesResponseDeserializer())
             .create();
 
     protected transient List<String> errors = new ArrayList<>();

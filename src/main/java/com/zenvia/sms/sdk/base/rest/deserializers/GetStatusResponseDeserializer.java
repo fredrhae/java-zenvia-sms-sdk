@@ -1,8 +1,9 @@
-package com.zenvia.sms.sdk.base.rest;
+package com.zenvia.sms.sdk.base.rest.deserializers;
 
 import com.google.gson.*;
 import com.zenvia.sms.sdk.base.models.SmsStatusCode;
-import com.zenvia.sms.sdk.base.responses.GetSmsStatusResponse;
+import com.zenvia.sms.sdk.base.rest.responses.GetSmsStatusResponse;
+import com.zenvia.sms.sdk.base.rest.responses.SmsResponse;
 import org.joda.time.DateTime;
 
 import java.lang.reflect.Type;
@@ -23,15 +24,19 @@ public class GetStatusResponseDeserializer implements JsonDeserializer<GetSmsSta
 
         DateTime dateToSet = (dateReceived.isEmpty()) ? null : new DateTime(dateReceived);
 
+        SmsResponse smsResponse = SmsResponse.builder()
+                                        .statusCode(SmsStatusCode.fromValue(statusCode))
+                                        .statusDescription(statusDescription)
+                                        .detailCode(detailCode)
+                                        .detailDescription(detailDescription)
+                                        .build();
+
         return GetSmsStatusResponse.builder()
                 .id(id)
                 .received(dateToSet)
                 .shortcode(shortCode)
                 .mobileOperatorName(mobileOperatorName)
-                .statusCode(SmsStatusCode.fromValue(statusCode))
-                .statusDescription(statusDescription)
-                .detailCode(detailCode)
-                .detailDescription(detailDescription)
+                .smsResponse(smsResponse)
                 .build();
     }
 

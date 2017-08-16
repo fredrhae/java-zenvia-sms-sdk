@@ -3,11 +3,12 @@ package com.zenvia.sms.sdk.api;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.zenvia.sms.sdk.base.requests.SendSmsMultiRequest;
-import com.zenvia.sms.sdk.base.requests.SendSmsRequest;
-import com.zenvia.sms.sdk.base.responses.GetSmsStatusResponse;
-import com.zenvia.sms.sdk.base.responses.SendSmsResponse;
-import com.zenvia.sms.sdk.base.responses.SendSmsResponseList;
+import com.zenvia.sms.sdk.base.rest.requests.SendSmsMultiRequest;
+import com.zenvia.sms.sdk.base.rest.requests.SendSmsRequest;
+import com.zenvia.sms.sdk.base.rest.responses.GetSmsStatusResponse;
+import com.zenvia.sms.sdk.base.rest.responses.ReceivedMessagesListResponse;
+import com.zenvia.sms.sdk.base.rest.responses.SmsResponse;
+import com.zenvia.sms.sdk.base.rest.responses.SendSmsResponseList;
 import com.zenvia.sms.sdk.base.models.ZenviaSmsModel;
 import com.zenvia.sms.sdk.exceptions.ZenviaHTTPExceptionFactory;
 import com.zenvia.sms.sdk.exceptions.ZenviaHTTPSmsException;
@@ -168,12 +169,12 @@ public final class ZenviaSms {
     }
 
     /**
-     * @param getRequest the HTTP Post
+     * @param getRequest the HTTP Get request
      * @return the response coming from Zenvia's API
      * @throws ZenviaHTTPSmsException when something goes wrong, i.e a non-200 OK response is answered
      * @throws IOException            when something goes wrong in the http connection and could not execute the request correctly
      */
-    private JsonObject getRequest(HttpGet getRequest) throws ZenviaHTTPSmsException, IOException {
+    private JsonObject sendGetRequest(HttpGet getRequest) throws ZenviaHTTPSmsException, IOException {
 
 
         CloseableHttpClient httpClient = HttpClients.createDefault();
@@ -214,13 +215,13 @@ public final class ZenviaSms {
     }
 
     /**
-     * @param postRequest the HTTP Post
+     * @param postRequest the HTTP Post request
      * @param requestBody the HTTP request body
      * @return the response coming from Zenvia's API
      * @throws ZenviaHTTPSmsException when something goes wrong, i.e a non-200 OK response is answered
      * @throws IOException            when something goes wrong in the http connection and could not execute the request correctly
      */
-    private JsonObject sendRequest(HttpPost postRequest, JsonObject requestBody) throws ZenviaHTTPSmsException, IOException {
+    private JsonObject sendPostRequest(HttpPost postRequest, JsonObject requestBody) throws ZenviaHTTPSmsException, IOException {
 
 
         CloseableHttpClient httpClient = HttpClients.createDefault();
@@ -235,11 +236,13 @@ public final class ZenviaSms {
 
         try {
 
-            this.requestBody = requestBody; // set Zenvia's request body for debugging purposes
+            if(requestBody != null) {
+                this.requestBody = requestBody; // set Zenvia's request body for debugging purposes
 
-            StringEntity requestEntity = new StringEntity(requestBody.toString(), ContentType.APPLICATION_JSON);
+                StringEntity requestEntity = new StringEntity(requestBody.toString(), ContentType.APPLICATION_JSON);
 
-            postRequest.setEntity(requestEntity);
+                postRequest.setEntity(requestEntity);
+            }
 
             response = httpClient.execute(postRequest);
 
@@ -303,7 +306,7 @@ public final class ZenviaSms {
      * @see <a href="http://docs.zenviasms.apiary.io/">Zenvia Sms API Spec</a>
      */
 
-    public SendSmsResponse sendSingleSms(SendSmsRequest sendSingleSmsRequest)
+    public SmsResponse sendSingleSms(SendSmsRequest sendSingleSmsRequest)
             throws ZenviaHTTPSmsException, ZenviaSmsUnexpectedAPIResponseException, ZenviaSmsInvalidEntityException {
 
         HttpPost postMethod = new HttpPost(zenviaSendSmsUrl().toString());
@@ -313,13 +316,13 @@ public final class ZenviaSms {
         JsonObject sendSmsJson = addPropertyAndConvertToJson(sendSingleSmsRequest, "sendSmsRequest");
 
         try {
-            responseBody = sendRequest(postMethod, sendSmsJson);
+            responseBody = sendPostRequest(postMethod, sendSmsJson);
 
             if (responseBody == null) {
                 throw new ZenviaSmsUnexpectedAPIResponseException(null);
             }
 
-            return (SendSmsResponse) ZenviaSmsModel.fromJSON(responseBody.getAsJsonObject("sendSmsResponse"), SendSmsResponse.class);
+            return (SmsResponse) ZenviaSmsModel.fromJSON(responseBody.getAsJsonObject("sendSmsResponse"), SmsResponse.class);
 
         } catch (IOException e) {
             throw new ZenviaSmsInvalidEntityException(sendSingleSmsRequest);
@@ -329,7 +332,7 @@ public final class ZenviaSms {
     /**
      * Send multiple sms simultaneously using Zenvia SMS API
      *
-     * @param sendSmsRequestList a {@link com.zenvia.sms.sdk.base.requests.SendSmsRequestList} instance
+     * @param sendSmsRequestList a {@link com.zenvia.sms.sdk.base.rest.requests.SendSmsRequestList} instance
      * @throws ZenviaHTTPSmsException
      * @throws ZenviaSmsUnexpectedAPIResponseException
      * @throws ZenviaSmsInvalidEntityException
@@ -346,7 +349,7 @@ public final class ZenviaSms {
         JsonObject sendMultipleSmsJson = addPropertyAndConvertToJson(sendSmsRequestList, "sendSmsMultiRequest");
 
         try {
-            responseBody = sendRequest(postMethod, sendMultipleSmsJson);
+            responseBody = sendPostRequest(postMethod, sendMultipleSmsJson);
 
             if (responseBody == null) {
                 throw new ZenviaSmsUnexpectedAPIResponseException(null);
@@ -376,7 +379,7 @@ public final class ZenviaSms {
         JsonObject responseBody;
 
         try {
-            responseBody = getRequest(getMethod);
+            responseBody = sendGetRequest(getMethod);
 
             if (responseBody == null) {
                 throw new ZenviaSmsUnexpectedAPIResponseException(null);
@@ -384,6 +387,36 @@ public final class ZenviaSms {
 
             return (GetSmsStatusResponse) ZenviaSmsModel.fromJSON(responseBody.getAsJsonObject("getSmsStatusResp"),
                                                                     GetSmsStatusResponse.class);
+
+        } catch (IOException e) {
+            throw new ZenviaSmsInvalidEntityException(null);
+        }
+    }
+
+    /**
+     * Request list of received messages, using Zenvia's API
+     *
+     * @throws ZenviaHTTPSmsException
+     * @throws ZenviaSmsUnexpectedAPIResponseException
+     * @throws ZenviaSmsInvalidEntityException
+     * @see <a href="http://docs.zenviasms.apiary.io/">Zenvia Sms API Spec</a>
+     */
+
+    public ReceivedMessagesListResponse listReceivedMessages()
+            throws ZenviaHTTPSmsException, ZenviaSmsUnexpectedAPIResponseException, ZenviaSmsInvalidEntityException {
+
+        HttpPost postMethod = new HttpPost(zenviaListReceivedSmsUrl().toString());
+
+        JsonObject responseBody;
+
+        try {
+            responseBody = sendPostRequest(postMethod, null);
+
+            if (responseBody == null) {
+                throw new ZenviaSmsUnexpectedAPIResponseException(null);
+            }
+
+            return (ReceivedMessagesListResponse) ZenviaSmsModel.fromJSON(responseBody.getAsJsonObject("receivedResponse"), ReceivedMessagesListResponse.class);
 
         } catch (IOException e) {
             throw new ZenviaSmsInvalidEntityException(null);
