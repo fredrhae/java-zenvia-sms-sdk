@@ -27,10 +27,10 @@ import static org.junit.Assert.assertEquals;
  *
  */
 public class ZenviaSmsTest {
-    private final String AUTH_KEY = "authorization_key";
-    private final String PHONE_NUMBER = "555199999999";
-    private final String PHONE_NUMBER_2 = "555199999999";
-    private final String PHONE_NUMBER_3 = "555199999999";
+    private final String AUTH_KEY = "authorization_key_here";
+    private final String PHONE_NUMBER = "5551999999999";
+    private final String PHONE_NUMBER_2 = "5551999999999";
+    private final String PHONE_NUMBER_3 = "5551999999999";
     private final String[] PHONE_NUMBERS = new String[]{PHONE_NUMBER, PHONE_NUMBER_2, PHONE_NUMBER_3};
     private final String ENDPOINT = "https://api-rest.zenvia360.com.br/services";
 
