@@ -299,8 +299,6 @@ public final class ZenviaSms {
         requestBase.addHeader("Accept", "application/json");
     }
 
-    //TODO: Add the methods to send sms and get status and sms
-
     /**
      * Sends a single sms using Zenvia SMS API
      *
@@ -461,7 +459,7 @@ public final class ZenviaSms {
 
     /**
      * Cancel scheduled SMS, using Zenvia's API
-     *
+     * @param id from sms which is desired to cancel
      * @throws ZenviaHTTPSmsException
      * @throws ZenviaSmsUnexpectedAPIResponseException
      * @throws ZenviaSmsInvalidEntityException

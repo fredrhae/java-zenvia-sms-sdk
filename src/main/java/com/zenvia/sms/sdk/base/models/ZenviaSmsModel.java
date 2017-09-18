@@ -31,7 +31,7 @@ public class ZenviaSmsModel {
             .registerTypeAdapter(Date.class, (JsonSerializer<Date>)
                     (json, typeOfSrc, context) -> {
                         TimeZone tz = TimeZone.getTimeZone("UTC");
-                        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+                        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
                         df.setTimeZone(tz);
                         return new JsonPrimitive(df.format(json));
                     }
