@@ -12,8 +12,12 @@ import lombok.EqualsAndHashCode;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 @EqualsAndHashCode
 public class ZenviaSmsModel {
@@ -24,6 +28,14 @@ public class ZenviaSmsModel {
             .registerTypeAdapter(DateTime.class, (JsonSerializer<DateTime>)
                                     (json, typeOfSrc, context) -> new JsonPrimitive(ISODateTimeFormat.dateTime().print(json))
                                 )
+            .registerTypeAdapter(Date.class, (JsonSerializer<Date>)
+                    (json, typeOfSrc, context) -> {
+                        TimeZone tz = TimeZone.getTimeZone("UTC");
+                        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+                        df.setTimeZone(tz);
+                        return new JsonPrimitive(df.format(json));
+                    }
+            )
             .registerTypeAdapter(SmsResponse.class, new SmsResponseDeserializer())
             .registerTypeAdapter(GetSmsStatusResponse.class, new GetStatusResponseDeserializer())
             .registerTypeAdapter(ReceivedMessagesListResponse.class, new ReceivedMessagesResponseDeserializer())

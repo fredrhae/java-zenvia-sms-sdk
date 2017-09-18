@@ -7,8 +7,8 @@ import com.zenvia.sms.sdk.base.rest.requests.SendSmsRequest;
 import com.zenvia.sms.sdk.base.rest.requests.SendSmsRequestList;
 import com.zenvia.sms.sdk.base.rest.responses.GetSmsStatusResponse;
 import com.zenvia.sms.sdk.base.rest.responses.ReceivedMessagesListResponse;
-import com.zenvia.sms.sdk.base.rest.responses.SmsResponse;
 import com.zenvia.sms.sdk.base.rest.responses.SendSmsResponseList;
+import com.zenvia.sms.sdk.base.rest.responses.SmsResponse;
 import com.zenvia.sms.sdk.exceptions.ZenviaHTTPSmsException;
 import com.zenvia.sms.sdk.exceptions.ZenviaSmsInvalidEntityException;
 import com.zenvia.sms.sdk.exceptions.ZenviaSmsUnexpectedAPIResponseException;
@@ -18,6 +18,7 @@ import org.junit.Test;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -27,7 +28,7 @@ import static org.junit.Assert.assertEquals;
  *
  */
 public class ZenviaSmsTest {
-    private final String AUTH_KEY = "authorization_key_here";
+    private final String AUTH_KEY = "your_authorization_key";
     private final String PHONE_NUMBER = "5551999999999";
     private final String PHONE_NUMBER_2 = "5551999999999";
     private final String PHONE_NUMBER_3 = "5551999999999";
@@ -151,7 +152,6 @@ public class ZenviaSmsTest {
         assertEquals(smsId, response.getId());
         assertEquals("Sent", response.getSmsResponse().getStatusDescription());
         assertEquals((Integer)110, response.getSmsResponse().getDetailCode());
-        assertEquals("tim", response.getMobileOperatorName());
     }
 
     @Test
@@ -170,12 +170,48 @@ public class ZenviaSmsTest {
             String smsId = getRandomId();
 
             SmsResponse responseSendSms = sendSingleScheduledSms("Test of received messages list, scheduling message " + i,
-                                                                    smsId, currentDate);
+                    smsId, currentDate);
             assertEquals(SmsStatusCode.OK, responseSendSms.getStatusCode());
         }
 
         ReceivedMessagesListResponse response = zenviaSms.listReceivedMessages();
         assertEquals(SmsStatusCode.OK, response.getSmsResponse().getStatusCode());
+    }
+
+    @Test
+    public void listReceivedMessagesTestWithNewMessagesByPeriod() throws Exception{
+
+        for(int i = 0; i < 5; i ++){
+            DateTime currentDate = DateTime.now();
+            currentDate.plusSeconds(i*10);
+
+            String smsId = getRandomId();
+
+            SmsResponse responseSendSms = sendSingleScheduledSms("Test of received messages list, scheduling message " + i,
+                    smsId, currentDate);
+            assertEquals(SmsStatusCode.OK, responseSendSms.getStatusCode());
+        }
+        Date startDate = DateTime.now().minusDays(2).toDate();
+        Date endDate = DateTime.now().plusDays(1).toDate();
+
+        ReceivedMessagesListResponse response = zenviaSms.listReceivedMessagesByPeriod(startDate,endDate);
+        assertEquals(SmsStatusCode.OK, response.getSmsResponse().getStatusCode());
+    }
+
+    @Test
+    public void cancelScheduledSmsTest() throws Exception{
+
+        DateTime currentDate = DateTime.now();
+        currentDate.plusDays(1);
+
+        String smsId = getRandomId();
+
+        SmsResponse responseSendSms = sendSingleScheduledSms("Test of cancel sms, scheduling message", smsId, currentDate);
+        assertEquals(SmsStatusCode.OK, responseSendSms.getStatusCode());
+
+        SmsResponse response = zenviaSms.cancelScheduledSms(smsId);
+        assertEquals(SmsStatusCode.BLOCKED, response.getStatusCode());
+        assertEquals(2, response.getDetailCode().intValue());
     }
 
     private SmsResponse sendSingleSms(String message, String id) throws ZenviaHTTPSmsException, ZenviaSmsUnexpectedAPIResponseException, ZenviaSmsInvalidEntityException {

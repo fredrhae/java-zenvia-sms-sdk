@@ -3,13 +3,13 @@ package com.zenvia.sms.sdk.api;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.zenvia.sms.sdk.base.models.ZenviaSmsModel;
 import com.zenvia.sms.sdk.base.rest.requests.SendSmsMultiRequest;
 import com.zenvia.sms.sdk.base.rest.requests.SendSmsRequest;
 import com.zenvia.sms.sdk.base.rest.responses.GetSmsStatusResponse;
 import com.zenvia.sms.sdk.base.rest.responses.ReceivedMessagesListResponse;
-import com.zenvia.sms.sdk.base.rest.responses.SmsResponse;
 import com.zenvia.sms.sdk.base.rest.responses.SendSmsResponseList;
-import com.zenvia.sms.sdk.base.models.ZenviaSmsModel;
+import com.zenvia.sms.sdk.base.rest.responses.SmsResponse;
 import com.zenvia.sms.sdk.exceptions.ZenviaHTTPExceptionFactory;
 import com.zenvia.sms.sdk.exceptions.ZenviaHTTPSmsException;
 import com.zenvia.sms.sdk.exceptions.ZenviaSmsInvalidEntityException;
@@ -26,6 +26,11 @@ import org.apache.http.impl.client.HttpClients;
 
 import java.io.*;
 import java.net.URI;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * ZenviaSms is an HTTP Client for connecting to Zenvia's API.
@@ -421,5 +426,74 @@ public final class ZenviaSms {
         } catch (IOException e) {
             throw new ZenviaSmsInvalidEntityException(null);
         }
+    }
+
+    /**
+     * Request list of received messages between period, using Zenvia's API
+     * @param startDate start date from search
+     * @param endDate end date from search
+     * @throws ZenviaHTTPSmsException
+     * @throws ZenviaSmsUnexpectedAPIResponseException
+     * @throws ZenviaSmsInvalidEntityException
+     * @see <a href="http://docs.zenviasms.apiary.io/">Zenvia Sms API Spec</a>
+     */
+
+    public ReceivedMessagesListResponse listReceivedMessagesByPeriod(Date startDate, Date endDate)
+            throws ZenviaHTTPSmsException, ZenviaSmsUnexpectedAPIResponseException, ZenviaSmsInvalidEntityException {
+
+        HttpGet getMethod = new HttpGet(zenviaListReceivedSmsByPeriodUrl(dateToIsoFormat(startDate), dateToIsoFormat(endDate)).toString());
+
+        JsonObject responseBody;
+
+        try {
+            responseBody = sendGetRequest(getMethod);
+
+            if (responseBody == null) {
+                throw new ZenviaSmsUnexpectedAPIResponseException(null);
+            }
+
+            return (ReceivedMessagesListResponse) ZenviaSmsModel.fromJSON(responseBody.getAsJsonObject("receivedResponse"), ReceivedMessagesListResponse.class);
+
+        } catch (IOException e) {
+            throw new ZenviaSmsInvalidEntityException(null);
+        }
+    }
+
+    /**
+     * Cancel scheduled SMS, using Zenvia's API
+     *
+     * @throws ZenviaHTTPSmsException
+     * @throws ZenviaSmsUnexpectedAPIResponseException
+     * @throws ZenviaSmsInvalidEntityException
+     * @see <a href="http://docs.zenviasms.apiary.io/">Zenvia Sms API Spec</a>
+     */
+
+    public SmsResponse cancelScheduledSms(String id)
+            throws ZenviaHTTPSmsException, ZenviaSmsUnexpectedAPIResponseException, ZenviaSmsInvalidEntityException {
+
+        HttpPost postMethod = new HttpPost(zenviaCancelSmsUrl(id).toString());
+
+        JsonObject responseBody;
+
+        try {
+            responseBody = sendPostRequest(postMethod, null);
+
+            if (responseBody == null) {
+                throw new ZenviaSmsUnexpectedAPIResponseException(null);
+            }
+
+            return (SmsResponse) ZenviaSmsModel.fromJSON(responseBody.getAsJsonObject("cancelSmsResp"), SmsResponse.class);
+
+        } catch (IOException e) {
+            throw new ZenviaSmsInvalidEntityException(null);
+        }
+    }
+
+    private String dateToIsoFormat(Date inputDate) {
+        TimeZone tz = TimeZone.getTimeZone("UTC");
+        DateTimeFormatter inputFormat = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss");
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        df.setTimeZone(tz);
+        return df.format(inputDate);
     }
 }
