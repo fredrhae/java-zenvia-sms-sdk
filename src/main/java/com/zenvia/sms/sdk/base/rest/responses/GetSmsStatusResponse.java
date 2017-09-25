@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import org.joda.time.DateTime;
+import java.util.Date;
 
 @Getter
 @Setter
@@ -22,7 +22,7 @@ public class GetSmsStatusResponse extends ZenviaSmsModel{
     /**
      *
      */
-    private DateTime received;
+    private Date received;
 
     /**
      *

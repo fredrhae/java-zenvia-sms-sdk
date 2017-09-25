@@ -9,8 +9,7 @@ import com.zenvia.sms.sdk.base.rest.responses.ReceivedMessagesListResponse;
 import com.zenvia.sms.sdk.base.rest.responses.SmsResponse;
 import com.zenvia.sms.sdk.exceptions.ZenviaSmsInvalidEntityException;
 import lombok.EqualsAndHashCode;
-import org.joda.time.DateTime;
-import org.joda.time.format.ISODateTimeFormat;
+
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -25,9 +24,6 @@ public class ZenviaSmsModel {
     protected static Gson gson = new GsonBuilder()
             .setFieldNamingPolicy(FieldNamingPolicy.IDENTITY)
             .setPrettyPrinting()
-            .registerTypeAdapter(DateTime.class, (JsonSerializer<DateTime>)
-                                    (json, typeOfSrc, context) -> new JsonPrimitive(ISODateTimeFormat.dateTime().print(json))
-                                )
             .registerTypeAdapter(Date.class, (JsonSerializer<Date>)
                     (json, typeOfSrc, context) -> {
                         TimeZone tz = TimeZone.getTimeZone("UTC");
