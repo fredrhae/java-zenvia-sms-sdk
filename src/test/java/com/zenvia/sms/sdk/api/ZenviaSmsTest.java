@@ -24,7 +24,7 @@ import static org.junit.Assert.assertEquals;
  *
  */
 public class ZenviaSmsTest {
-    private final String AUTH_KEY =  "your_auth_key";
+    private final String AUTH_KEY =  "your_authorization_key";
     private final String PHONE_NUMBER = "5551999999999";
     private final String PHONE_NUMBER_2 = "5551999999999";
     private final String PHONE_NUMBER_3 = "5551999999999";
@@ -115,17 +115,16 @@ public class ZenviaSmsTest {
         List<SendSmsRequestList> multipleSms = new ArrayList<>();
 
         for(int i = 0; i < 3; i ++){
-            SendSmsRequestList currentSmsRequestList = SendSmsRequestList.builder()
+            SendSmsRequestList currentSmsRequestList = new SendSmsRequestList.
+                                    SendSmsRequestListBuilder(PHONE_NUMBERS[i],"Teste of multiple sends!")
                                                         .from("Frederico Leal")
-                                                        .to(PHONE_NUMBERS[i])
-                                                        .msg("Teste of multiple sends!")
                                                         .id(getRandomId())
                                                         .build();
 
             multipleSms.add(currentSmsRequestList);
         }
 
-        SendSmsMultiRequest multipleSmsRequest = SendSmsMultiRequest.builder()
+        SendSmsMultiRequest multipleSmsRequest = new SendSmsMultiRequest.SendSmsMultiRequestBuilder()
                                                     .sendSmsRequestList(multipleSms)
                                                     .build();
 
@@ -216,10 +215,8 @@ public class ZenviaSmsTest {
     }
 
     private SmsResponse sendSingleSms(String message, String id) throws ZenviaHTTPSmsException, ZenviaSmsUnexpectedAPIResponseException, ZenviaSmsInvalidEntityException {
-        SendSmsRequest smsRequest = SendSmsRequest.builder()
+        SendSmsRequest smsRequest = new  SendSmsRequest.SendSmsRequestBuilder(PHONE_NUMBER, message)
                 .from("Frederico Leal")
-                .to(PHONE_NUMBER)
-                .msg(message)
                 .id(id)
                 .callbackOption(CallbackOption.NONE)
                 .build();
@@ -228,10 +225,8 @@ public class ZenviaSmsTest {
     }
 
     private SmsResponse sendSingleScheduledSms(String message, String id, Date scheduled) throws ZenviaHTTPSmsException, ZenviaSmsUnexpectedAPIResponseException, ZenviaSmsInvalidEntityException {
-        SendSmsRequest smsRequest = SendSmsRequest.builder()
+        SendSmsRequest smsRequest = new SendSmsRequest.SendSmsRequestBuilder(PHONE_NUMBER, message)
                 .from("Frederico Leal")
-                .to(PHONE_NUMBER)
-                .msg(message)
                 .id(id)
                 .schedule(scheduled)
                 .callbackOption(CallbackOption.NONE)
