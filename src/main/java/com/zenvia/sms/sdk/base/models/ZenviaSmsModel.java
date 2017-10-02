@@ -8,7 +8,6 @@ import com.zenvia.sms.sdk.base.rest.responses.GetSmsStatusResponse;
 import com.zenvia.sms.sdk.base.rest.responses.ReceivedMessagesListResponse;
 import com.zenvia.sms.sdk.base.rest.responses.SmsResponse;
 import com.zenvia.sms.sdk.exceptions.ZenviaSmsInvalidEntityException;
-import lombok.EqualsAndHashCode;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -18,7 +17,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
-@EqualsAndHashCode
 public class ZenviaSmsModel {
 
     protected static Gson gson = new GsonBuilder()
@@ -91,5 +89,20 @@ public class ZenviaSmsModel {
 
     public static Gson getGson(){
         return gson;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ZenviaSmsModel that = (ZenviaSmsModel) o;
+
+        return errors != null ? errors.equals(that.errors) : that.errors == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return errors != null ? errors.hashCode() : 0;
     }
 }

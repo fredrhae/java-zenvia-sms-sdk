@@ -15,7 +15,7 @@ public class SmsResponseDeserializer implements JsonDeserializer<SmsResponse> {
         JsonElement elementDetailCode = jsonObject.get("detailCode");
         JsonElement elementDetailDescription = jsonObject.get("detailDescription");
 
-        return SmsResponse.builder()
+        return new SmsResponse.SmsResponseBuilder()
                     .statusCode(SmsStatusCode.fromValue(elementStatusCode.getAsInt()))
                     .statusDescription(elementStatusDescription.getAsString())
                     .detailCode(elementDetailCode.getAsInt())

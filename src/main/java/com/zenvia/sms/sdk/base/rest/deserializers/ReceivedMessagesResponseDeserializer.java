@@ -21,7 +21,7 @@ public class ReceivedMessagesResponseDeserializer implements JsonDeserializer<Re
 
         List<ReceivedMessage> receivedMessages = extractReceivedMessages(jsonObject);
 
-        return ReceivedMessagesListResponse.builder()
+        return new ReceivedMessagesListResponse.ReceivedMessagesListResponseBuilder()
                 .receivedMessages(receivedMessages)
                 .smsResponse(smsResponse)
                 .build();
@@ -46,7 +46,7 @@ public class ReceivedMessagesResponseDeserializer implements JsonDeserializer<Re
         String detailDescription = jsonObject.get("detailDescription").getAsString();
 
 
-        return SmsResponse.builder()
+        return new SmsResponse.SmsResponseBuilder()
                                     .statusCode(SmsStatusCode.fromValue(statusCode))
                                     .statusDescription(statusDescription)
                                     .detailCode(detailCode)

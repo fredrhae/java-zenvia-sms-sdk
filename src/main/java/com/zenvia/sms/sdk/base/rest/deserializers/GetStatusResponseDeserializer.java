@@ -33,17 +33,17 @@ public class GetStatusResponseDeserializer implements JsonDeserializer<GetSmsSta
             }
         }
 
-        SmsResponse smsResponse = SmsResponse.builder()
+        SmsResponse smsResponse = new SmsResponse.SmsResponseBuilder()
                                         .statusCode(SmsStatusCode.fromValue(statusCode))
                                         .statusDescription(statusDescription)
                                         .detailCode(detailCode)
                                         .detailDescription(detailDescription)
                                         .build();
 
-        return GetSmsStatusResponse.builder()
+        return new GetSmsStatusResponse.GetSmsStatusResponseBuilder()
                 .id(id)
                 .received(dateToSet)
-                .shortcode(shortCode)
+                .shortCode(shortCode)
                 .mobileOperatorName(mobileOperatorName)
                 .smsResponse(smsResponse)
                 .build();
