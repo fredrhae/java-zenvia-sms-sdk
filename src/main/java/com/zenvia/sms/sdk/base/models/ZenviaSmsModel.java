@@ -8,32 +8,40 @@ import com.zenvia.sms.sdk.base.rest.responses.GetSmsStatusResponse;
 import com.zenvia.sms.sdk.base.rest.responses.ReceivedMessagesListResponse;
 import com.zenvia.sms.sdk.base.rest.responses.SmsResponse;
 import com.zenvia.sms.sdk.exceptions.ZenviaSmsInvalidEntityException;
-import lombok.EqualsAndHashCode;
-import org.joda.time.DateTime;
-import org.joda.time.format.ISODateTimeFormat;
 
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
-@EqualsAndHashCode
 public class ZenviaSmsModel {
 
     protected static Gson gson = new GsonBuilder()
             .setFieldNamingPolicy(FieldNamingPolicy.IDENTITY)
             .setPrettyPrinting()
-            .registerTypeAdapter(DateTime.class, (JsonSerializer<DateTime>)
-                                    (json, typeOfSrc, context) -> new JsonPrimitive(ISODateTimeFormat.dateTime().print(json))
-                                )
             .registerTypeAdapter(Date.class, (JsonSerializer<Date>)
                     (json, typeOfSrc, context) -> {
                         TimeZone tz = TimeZone.getTimeZone("UTC");
                         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
                         df.setTimeZone(tz);
                         return new JsonPrimitive(df.format(json));
+                    }
+            )
+            .registerTypeAdapter(Date.class, (JsonDeserializer<Date>)
+                    (jsonElement, typeOfSrc, context) -> {
+                        String date = jsonElement.getAsString();
+
+                        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+                        format.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+                        try {
+                            return format.parse(date);
+                        } catch (ParseException exp) {
+                            return null;
+                        }
                     }
             )
             .registerTypeAdapter(SmsResponse.class, new SmsResponseDeserializer())
@@ -81,5 +89,20 @@ public class ZenviaSmsModel {
 
     public static Gson getGson(){
         return gson;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ZenviaSmsModel that = (ZenviaSmsModel) o;
+
+        return errors != null ? errors.equals(that.errors) : that.errors == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return errors != null ? errors.hashCode() : 0;
     }
 }

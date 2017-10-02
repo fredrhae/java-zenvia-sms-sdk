@@ -4,9 +4,11 @@ import com.google.gson.*;
 import com.zenvia.sms.sdk.base.models.SmsStatusCode;
 import com.zenvia.sms.sdk.base.rest.responses.GetSmsStatusResponse;
 import com.zenvia.sms.sdk.base.rest.responses.SmsResponse;
-import org.joda.time.DateTime;
 
 import java.lang.reflect.Type;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class GetStatusResponseDeserializer implements JsonDeserializer<GetSmsStatusResponse> {
 
@@ -21,20 +23,27 @@ public class GetStatusResponseDeserializer implements JsonDeserializer<GetSmsSta
         String statusDescription = returnEmptyIfNull(jsonObject.get("statusDescription"));
         Integer detailCode = jsonObject.get("detailCode").getAsInt();
         String detailDescription = returnEmptyIfNull(jsonObject.get("detailDescription"));
+        Date dateToSet = new Date();
 
-        DateTime dateToSet = (dateReceived.isEmpty()) ? null : new DateTime(dateReceived);
+        if (!dateReceived.isEmpty()) {
+            try {
+                dateToSet = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(dateReceived);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
 
-        SmsResponse smsResponse = SmsResponse.builder()
+        SmsResponse smsResponse = new SmsResponse.SmsResponseBuilder()
                                         .statusCode(SmsStatusCode.fromValue(statusCode))
                                         .statusDescription(statusDescription)
                                         .detailCode(detailCode)
                                         .detailDescription(detailDescription)
                                         .build();
 
-        return GetSmsStatusResponse.builder()
+        return new GetSmsStatusResponse.GetSmsStatusResponseBuilder()
                 .id(id)
                 .received(dateToSet)
-                .shortcode(shortCode)
+                .shortCode(shortCode)
                 .mobileOperatorName(mobileOperatorName)
                 .smsResponse(smsResponse)
                 .build();
@@ -46,5 +55,4 @@ public class GetStatusResponseDeserializer implements JsonDeserializer<GetSmsSta
         }
         return input.getAsString();
     }
-
 }
