@@ -2,35 +2,27 @@ package com.zenvia.sms.sdk.api;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.zenvia.sms.sdk.base.models.ZenviaSmsModel;
+import com.zenvia.sms.sdk.base.rest.JsonHelper;
+import com.zenvia.sms.sdk.base.rest.RestHelper;
 import com.zenvia.sms.sdk.base.rest.requests.SendSmsMultiRequest;
 import com.zenvia.sms.sdk.base.rest.requests.SendSmsRequest;
 import com.zenvia.sms.sdk.base.rest.responses.GetSmsStatusResponse;
 import com.zenvia.sms.sdk.base.rest.responses.ReceivedMessagesListResponse;
 import com.zenvia.sms.sdk.base.rest.responses.SendSmsResponseList;
 import com.zenvia.sms.sdk.base.rest.responses.SmsResponse;
-import com.zenvia.sms.sdk.exceptions.ZenviaHTTPExceptionFactory;
 import com.zenvia.sms.sdk.exceptions.ZenviaHTTPSmsException;
 import com.zenvia.sms.sdk.exceptions.ZenviaSmsInvalidEntityException;
 import com.zenvia.sms.sdk.exceptions.ZenviaSmsUnexpectedAPIResponseException;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
+import com.zenvia.sms.sdk.utils.DateHelper;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
-import java.util.TimeZone;
 
 /**
  * ZenviaSms is an HTTP Client for connecting to Zenvia's API.
@@ -39,9 +31,6 @@ public final class ZenviaSms {
     public static final String VERSION = "0.0.1";
 
     private String base64AuthorizationKey;
-
-    private JsonObject requestBody;
-    private JsonObject responseBody;
 
     private URI endpoint = URI.create("https://api-rest.zenvia360.com.br/services");
 
@@ -113,7 +102,8 @@ public final class ZenviaSms {
 
     /**
      * @param startDate the start date from the search
-     * @param endDate   the end date from the search
+     * @param endDate   the end date from
+the search
      * @return [GET] order URI (ENDPOINT/get-sms-status/smsId)
      */
     public URI zenviaListReceivedSmsByPeriodUrl(String startDate, String endDate) {
@@ -128,153 +118,6 @@ public final class ZenviaSms {
         return URI.create(endpoint.toString().concat("/cancel-sms/" + smsId));
     }
 
-    /**
-     * Helper method to debug requests made to Zenvia's API.
-     *
-     * @return a String containing API Key, Zenvia's API endpoint, request and response bodies.
-     */
-    public String debug() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(String.format("API Key: %s\n", this.base64AuthorizationKey));
-        sb.append(String.format("Endpoint: %s\n", this.endpoint.toString()));
-        if (this.requestBody != null) {
-            sb.append(String.format("Request body: %s\n", this.requestBody));
-        }
-        if (this.responseBody != null) {
-            sb.append(String.format("Response body: %s\n", this.responseBody));
-        }
-        return sb.toString();
-    }
-
-    /**
-     * @param inputStream the stream with HTTP response
-     * @return the response body as a {@link com.google.gson.JsonObject JsonObject}
-     * @throws IOException
-     */
-    private static JsonObject extractResponse(InputStream inputStream) throws IOException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-        StringBuilder stringBuilder = new StringBuilder();
-
-        String line;
-        try {
-            while ((line = reader.readLine()) != null) {
-                stringBuilder.append(line + "\n");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                inputStream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        JsonParser parser = new JsonParser();
-        return (JsonObject) parser.parse(stringBuilder.toString());
-    }
-
-    /**
-     * @param getRequest the HTTP Get request
-     * @return the response coming from Zenvia's API
-     * @throws ZenviaHTTPSmsException when something goes wrong, i.e a non-200 OK response is answered
-     * @throws IOException            when something goes wrong in the http connection and could not execute the request correctly
-     */
-    private JsonObject sendGetRequest(HttpGet getRequest) throws ZenviaHTTPSmsException, IOException {
-
-
-        CloseableHttpClient httpClient = HttpClients.createDefault();
-
-        JsonObject responseBody;
-
-        HttpResponse response;
-
-        checkAuthorizationData();
-
-        addAuthorizationAndAccept(getRequest);
-
-        try {
-
-            response = httpClient.execute(getRequest);
-
-            int statusCode = response.getStatusLine().getStatusCode();
-
-            HttpEntity responseEntity = response.getEntity();
-
-            responseBody = extractResponse(responseEntity.getContent());
-
-            this.responseBody = responseBody; // set Zenvia's response body for debugging purposes
-
-            System.out.println(debug());
-
-            if (statusCode != 200) {
-                throw ZenviaHTTPExceptionFactory.buildException(statusCode, responseBody);
-            }
-
-            httpClient.close();
-
-            return responseBody;
-
-        } finally {
-            httpClient.close();
-        }
-    }
-
-    /**
-     * @param postRequest the HTTP Post request
-     * @param requestBody the HTTP request body
-     * @return the response coming from Zenvia's API
-     * @throws ZenviaHTTPSmsException when something goes wrong, i.e a non-200 OK response is answered
-     * @throws IOException            when something goes wrong in the http connection and could not execute the request correctly
-     */
-    private JsonObject sendPostRequest(HttpPost postRequest, JsonObject requestBody) throws ZenviaHTTPSmsException, IOException {
-
-
-        CloseableHttpClient httpClient = HttpClients.createDefault();
-
-        JsonObject responseBody;
-
-        HttpResponse response;
-
-        checkAuthorizationData();
-
-        addCompleteHeaders(postRequest);
-
-        try {
-
-            if(requestBody != null) {
-                this.requestBody = requestBody; // set Zenvia's request body for debugging purposes
-
-                StringEntity requestEntity = new StringEntity(requestBody.toString(), ContentType.APPLICATION_JSON);
-
-                postRequest.setEntity(requestEntity);
-            }
-
-            response = httpClient.execute(postRequest);
-
-            int statusCode = response.getStatusLine().getStatusCode();
-
-            HttpEntity responseEntity = response.getEntity();
-
-            responseBody = extractResponse(responseEntity.getContent());
-
-            this.responseBody = responseBody; // set Zenvia's response body for debugging purposes
-
-            System.out.println(debug());
-
-            if (statusCode != 200) {
-                throw ZenviaHTTPExceptionFactory.buildException(statusCode, responseBody);
-            }
-
-            httpClient.close();
-
-            return responseBody;
-
-        } finally {
-            httpClient.close();
-        }
-    }
-
-
     private void checkAuthorizationData() {
         if (this.base64AuthorizationKey == null) {
             throw new NullPointerException("API authorization key cannot be generated, since there is not username and password configured");
@@ -282,7 +125,7 @@ public final class ZenviaSms {
     }
 
     private JsonObject addPropertyAndConvertToJson(ZenviaSmsModel smsModel, String property) {
-        JsonElement elements = ZenviaSmsModel.getGson().toJsonTree(smsModel);
+        JsonElement elements = JsonHelper.getGson().toJsonTree(smsModel);
         JsonObject jsonObject = new JsonObject();
         jsonObject.add(property, elements);
         return jsonObject;
@@ -319,13 +162,17 @@ public final class ZenviaSms {
         JsonObject sendSmsJson = addPropertyAndConvertToJson(sendSingleSmsRequest, "sendSmsRequest");
 
         try {
-            responseBody = sendPostRequest(postMethod, sendSmsJson);
+            checkAuthorizationData();
+
+            addCompleteHeaders(postMethod);
+
+            responseBody = RestHelper.sendPostRequest(postMethod, sendSmsJson);
 
             if (responseBody == null) {
                 throw new ZenviaSmsUnexpectedAPIResponseException(null);
             }
 
-            return (SmsResponse) ZenviaSmsModel.fromJSON(responseBody.getAsJsonObject("sendSmsResponse"), SmsResponse.class);
+            return (SmsResponse) JsonHelper.fromJSON(responseBody.getAsJsonObject("sendSmsResponse"), SmsResponse.class);
 
         } catch (IOException e) {
             throw new ZenviaSmsInvalidEntityException(sendSingleSmsRequest);
@@ -352,13 +199,17 @@ public final class ZenviaSms {
         JsonObject sendMultipleSmsJson = addPropertyAndConvertToJson(sendSmsRequestList, "sendSmsMultiRequest");
 
         try {
-            responseBody = sendPostRequest(postMethod, sendMultipleSmsJson);
+            checkAuthorizationData();
+
+            addCompleteHeaders(postMethod);
+
+            responseBody = RestHelper.sendPostRequest(postMethod, sendMultipleSmsJson);
 
             if (responseBody == null) {
                 throw new ZenviaSmsUnexpectedAPIResponseException(null);
             }
 
-            return (SendSmsResponseList) ZenviaSmsModel.fromJSON(responseBody.getAsJsonObject("sendSmsMultiResponse"), SendSmsResponseList.class);
+            return (SendSmsResponseList) JsonHelper.fromJSON(responseBody.getAsJsonObject("sendSmsMultiResponse"), SendSmsResponseList.class);
 
         } catch (IOException e) {
             throw new ZenviaSmsInvalidEntityException(sendSmsRequestList);
@@ -382,13 +233,17 @@ public final class ZenviaSms {
         JsonObject responseBody;
 
         try {
-            responseBody = sendGetRequest(getMethod);
+            checkAuthorizationData();
+
+            addAuthorizationAndAccept(getMethod);
+
+            responseBody = RestHelper.sendGetRequest(getMethod);
 
             if (responseBody == null) {
                 throw new ZenviaSmsUnexpectedAPIResponseException(null);
             }
 
-            return (GetSmsStatusResponse) ZenviaSmsModel.fromJSON(responseBody.getAsJsonObject("getSmsStatusResp"),
+            return (GetSmsStatusResponse) JsonHelper.fromJSON(responseBody.getAsJsonObject("getSmsStatusResp"),
                                                                     GetSmsStatusResponse.class);
 
         } catch (IOException e) {
@@ -413,13 +268,17 @@ public final class ZenviaSms {
         JsonObject responseBody;
 
         try {
-            responseBody = sendPostRequest(postMethod, null);
+            checkAuthorizationData();
+
+            addCompleteHeaders(postMethod);
+
+            responseBody = RestHelper.sendPostRequest(postMethod, null);
 
             if (responseBody == null) {
                 throw new ZenviaSmsUnexpectedAPIResponseException(null);
             }
 
-            return (ReceivedMessagesListResponse) ZenviaSmsModel.fromJSON(responseBody.getAsJsonObject("receivedResponse"), ReceivedMessagesListResponse.class);
+            return (ReceivedMessagesListResponse) JsonHelper.fromJSON(responseBody.getAsJsonObject("receivedResponse"), ReceivedMessagesListResponse.class);
 
         } catch (IOException e) {
             throw new ZenviaSmsInvalidEntityException(null);
@@ -439,18 +298,22 @@ public final class ZenviaSms {
     public ReceivedMessagesListResponse listReceivedMessagesByPeriod(Date startDate, Date endDate)
             throws ZenviaHTTPSmsException, ZenviaSmsUnexpectedAPIResponseException, ZenviaSmsInvalidEntityException {
 
-        HttpGet getMethod = new HttpGet(zenviaListReceivedSmsByPeriodUrl(dateToIsoFormat(startDate), dateToIsoFormat(endDate)).toString());
+        HttpGet getMethod = new HttpGet(zenviaListReceivedSmsByPeriodUrl(DateHelper.dateToIsoFormat(startDate), DateHelper.dateToIsoFormat(endDate)).toString());
 
         JsonObject responseBody;
 
         try {
-            responseBody = sendGetRequest(getMethod);
+            checkAuthorizationData();
+
+            addAuthorizationAndAccept(getMethod);
+
+            responseBody = RestHelper.sendGetRequest(getMethod);
 
             if (responseBody == null) {
                 throw new ZenviaSmsUnexpectedAPIResponseException(null);
             }
 
-            return (ReceivedMessagesListResponse) ZenviaSmsModel.fromJSON(responseBody.getAsJsonObject("receivedResponse"), ReceivedMessagesListResponse.class);
+            return (ReceivedMessagesListResponse) JsonHelper.fromJSON(responseBody.getAsJsonObject("receivedResponse"), ReceivedMessagesListResponse.class);
 
         } catch (IOException e) {
             throw new ZenviaSmsInvalidEntityException(null);
@@ -474,24 +337,20 @@ public final class ZenviaSms {
         JsonObject responseBody;
 
         try {
-            responseBody = sendPostRequest(postMethod, null);
+            checkAuthorizationData();
+
+            addCompleteHeaders(postMethod);
+
+            responseBody = RestHelper.sendPostRequest(postMethod, null);
 
             if (responseBody == null) {
                 throw new ZenviaSmsUnexpectedAPIResponseException(null);
             }
 
-            return (SmsResponse) ZenviaSmsModel.fromJSON(responseBody.getAsJsonObject("cancelSmsResp"), SmsResponse.class);
+            return (SmsResponse) JsonHelper.fromJSON(responseBody.getAsJsonObject("cancelSmsResp"), SmsResponse.class);
 
         } catch (IOException e) {
             throw new ZenviaSmsInvalidEntityException(null);
         }
-    }
-
-    private String dateToIsoFormat(Date inputDate) {
-        TimeZone tz = TimeZone.getTimeZone("UTC");
-        DateTimeFormatter inputFormat = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss");
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-        df.setTimeZone(tz);
-        return df.format(inputDate);
     }
 }

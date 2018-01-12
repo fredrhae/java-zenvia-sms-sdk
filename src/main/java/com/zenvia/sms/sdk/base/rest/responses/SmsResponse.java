@@ -3,6 +3,8 @@ package com.zenvia.sms.sdk.base.rest.responses;
 import com.zenvia.sms.sdk.base.models.SmsStatusCode;
 import com.zenvia.sms.sdk.base.models.ZenviaSmsModel;
 
+import static com.zenvia.sms.sdk.utils.Constants.HASH_VALUE_BASE;
+
 public class SmsResponse extends ZenviaSmsModel{
 
     /**
@@ -82,10 +84,10 @@ public class SmsResponse extends ZenviaSmsModel{
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + (statusCode != null ? statusCode.hashCode() : 0);
-        result = 31 * result + (statusDescription != null ? statusDescription.hashCode() : 0);
-        result = 31 * result + (detailCode != null ? detailCode.hashCode() : 0);
-        result = 31 * result + (detailDescription != null ? detailDescription.hashCode() : 0);
+        result = HASH_VALUE_BASE * result + (statusDescription != null ? statusDescription.hashCode() : 0);
+        result = HASH_VALUE_BASE * result + (statusCode != null ? statusCode.hashCode() : 0);
+        result = HASH_VALUE_BASE * result + (detailCode != null ? detailCode.hashCode() : 0);
+        result = HASH_VALUE_BASE * result + (detailDescription != null ? detailDescription.hashCode() : 0);
         return result;
     }
 

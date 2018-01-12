@@ -3,7 +3,7 @@ package com.zenvia.sms.sdk.base.rest.deserializers;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import com.zenvia.sms.sdk.base.models.SmsStatusCode;
-import com.zenvia.sms.sdk.base.models.ZenviaSmsModel;
+import com.zenvia.sms.sdk.base.rest.JsonHelper;
 import com.zenvia.sms.sdk.base.rest.responses.ReceivedMessage;
 import com.zenvia.sms.sdk.base.rest.responses.ReceivedMessagesListResponse;
 import com.zenvia.sms.sdk.base.rest.responses.SmsResponse;
@@ -30,11 +30,10 @@ public class ReceivedMessagesResponseDeserializer implements JsonDeserializer<Re
     private List<ReceivedMessage> extractReceivedMessages(JsonObject jsonObject) {
         List<ReceivedMessage> receivedMessages = new ArrayList<>();
 
-        if(jsonObject.has("receivedMessages") && !jsonObject.get("receivedMessages").isJsonNull())
-        {
+        if(jsonObject.has("receivedMessages") && !jsonObject.get("receivedMessages").isJsonNull()) {
             JsonArray jsonReceivedMessages = jsonObject.getAsJsonArray("receivedMessages");
             Type listType = new TypeToken<List<ReceivedMessage>>(){}.getType();
-            receivedMessages = ZenviaSmsModel.getGson().fromJson(jsonReceivedMessages,listType);
+            receivedMessages = JsonHelper.getGson().fromJson(jsonReceivedMessages,listType);
         }
         return receivedMessages;
     }
